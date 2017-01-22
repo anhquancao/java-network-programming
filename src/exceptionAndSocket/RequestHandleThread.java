@@ -3,7 +3,7 @@ package exceptionAndSocket;
 import java.io.*;
 import java.net.SocketException;
 
-public class RequestHandleThread extends Thread {
+public class RequestHandleThread implements Runnable {
 
     private InputStream in;
     private OutputStream out;
@@ -27,6 +27,10 @@ public class RequestHandleThread extends Thread {
                     String message = "";
                     Action action = (Action) objectInputStream.readObject();
                     switch (action.getType()) {
+                        case TEST_NUMBER_IS_FIRST:
+                            int number = (int) action.getData();
+                            message = "Number is first: " + server.testNumberisFirst(number);
+                            break;
                         case ADD:
                             teacher = (Teacher) action.getData();
                             server.addTeacher(teacher);

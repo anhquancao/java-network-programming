@@ -4,5 +4,5 @@ package exceptionAndSocket;
  * Created by caoquan on 1/17/17.
  */
 public enum ActionType {
-    ADD, DELETE, MODIFY, CALCULATE_AGE, AVERAGE_AGE
+    ADD, DELETE, MODIFY, CALCULATE_AGE, AVERAGE_AGE, TEST_NUMBER_IS_FIRST
 }

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TeacherSetServer {
 
@@ -88,14 +90,19 @@ public class TeacherSetServer {
         }
     }
 
+    public boolean testNumberisFirst(int number) {
+        return number == 1;
+    }
+
     public void listen() {
         System.out.println("Server is listening at port: " + this.port);
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
                 System.out.println("accept");
-                Thread requestHandleThread = new RequestHandleThread(socket.getInputStream(), socket.getOutputStream(), this);
-                requestHandleThread.start();
+                ExecutorService pool = Executors.newFixedThreadPool(10);
+                Runnable requestHandleTask = new RequestHandleThread(socket.getInputStream(), socket.getOutputStream(), this);
+                pool.submit(requestHandleTask);
 
             } catch (IOException e) {
                 System.out.println(e);
