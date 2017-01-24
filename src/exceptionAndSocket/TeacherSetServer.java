@@ -1,11 +1,13 @@
 package exceptionAndSocket;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.OptionalDouble;
+import java.util.concurrent.*;
+import java.util.function.Predicate;
 
 public class TeacherSetServer {
 
@@ -40,37 +42,33 @@ public class TeacherSetServer {
         addTeacher(t5);
     }
 
+    public Teacher findTeacherByName(String name) {
+        Predicate<Teacher> isFound = t -> t.getName().equals(name);
+        return this.teachers.stream().filter(isFound).findFirst().get();
+    }
+
     public int calculateAge(String name) throws TeacherNotFoundException {
-        for (Teacher teacher : teachers) {
-            if (teacher.getName().equals(name)) {
-                return teacher.getAge();
-            }
-        }
-        throw new TeacherNotFoundException("Teacher not found");
+        int age = this.teachers.stream().filter(t -> t.getName().equals(name)).findFirst().get().getAge();
+        return age;
     }
 
-    public float averageAge() throws TeacherNotFoundException {
-        int sum = 0;
-        for (Teacher teacher : teachers) {
-            sum += teacher.getAge();
+    public double averageAge() throws TeacherNotFoundException {
+        OptionalDouble doubleOptional = this.teachers.stream().mapToDouble(Teacher::getAge).average();
+        if (doubleOptional.isPresent()) {
+            return doubleOptional.getAsDouble();
+        } else {
+            throw new TeacherNotFoundException("No teacher with that name");
         }
-        if (sum == 0) {
-            throw new TeacherNotFoundException("There is no teacher in the set");
-        }
-        return (float) sum / teachers.size();
+
     }
 
-    public float averageSalary() throws TeacherNotFoundException {
-        int sum = 0;
-        for (Teacher teacher : teachers) {
-            if (teacher.getAge() > 40 && teacher.getAge() < 60) {
-                sum += teacher.getAge();
-            }
-        }
-        if (sum == 0) {
-            throw new TeacherNotFoundException("There is no teacher meet that criteria in the set");
-        }
-        return (float) sum / teachers.size();
+    public double averageSalary() throws TeacherNotFoundException {
+        return this.teachers.stream().mapToDouble(Teacher::getSalary).average().getAsDouble();
+    }
+
+    public double averageByAge(int min, int max) {
+        Predicate<Teacher> isBetween = t -> t.getAge() > min && t.getAge() < max;
+        return this.teachers.stream().filter(isBetween).mapToDouble(Teacher::getAge).average().getAsDouble();
     }
 
     public void addTeacher(Teacher teacher) {
@@ -90,8 +88,11 @@ public class TeacherSetServer {
         }
     }
 
-    public boolean testNumberisFirst(int number) {
-        return number == 1;
+    public boolean testNumberIsPrime(int number) {
+        for (int i = 2; i < number; i++) {
+            if (number % i == 0) return false;
+        }
+        return true;
     }
 
     public void listen() {
@@ -101,7 +102,7 @@ public class TeacherSetServer {
                 Socket socket = serverSocket.accept();
                 System.out.println("accept");
                 ExecutorService pool = Executors.newFixedThreadPool(10);
-                Runnable requestHandleTask = new RequestHandleThread(socket.getInputStream(), socket.getOutputStream(), this);
+                Runnable requestHandleTask = new RequestHandleTask(socket.getInputStream(), socket.getOutputStream(), this);
                 pool.submit(requestHandleTask);
 
             } catch (IOException e) {
@@ -110,11 +111,61 @@ public class TeacherSetServer {
         }
     }
 
+    public void listenNumberIsFirst() {
+        System.out.println("Server is listening at port: " + this.port);
+        while (true) {
+            try {
+                int taskNumber = 10;
+                System.out.println("Socket waiting for connection.");
+                Socket socket = serverSocket.accept();
+                System.out.println("accept");
+                ExecutorService pool = Executors.newFixedThreadPool(10);
+                CompletionService<Boolean> completionService =
+                        new ExecutorCompletionService<Boolean>(pool);
+
+
+
+                for (int i = 0; i < taskNumber; i++) {
+//                    completionService.submit(new NumberIsPrimeTask(socket.getOutputStream(), socket.getInputStream(), this));
+                    completionService.submit(() -> {
+                        DataInputStream in = new DataInputStream(socket.getInputStream());
+                        synchronized (socket.getInputStream()) {
+                            int number = in.readInt();
+                            System.out.println(number);
+                            return this.testNumberIsPrime(number);
+                        }
+                    });
+                }
+
+
+                System.out.println(taskNumber);
+                for (int tasksHandled = 0; tasksHandled < taskNumber; tasksHandled++) {
+                    try {
+                        Future<Boolean> result = completionService.take();
+
+                        Boolean b = result.get();
+                        System.out.println("Task " + String.valueOf(tasksHandled) + " Completed - results obtained : " + b);
+
+                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+//                        e.printStackTrace();
+                    }
+                }
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
     public static void main(String[] args) {
         int port = 33333;
         TeacherSetServer server = new TeacherSetServer(port);
         server.createTestTeacher();
-        server.listen();
-
+//        server.listen();
+        server.listenNumberIsFirst();
     }
 }

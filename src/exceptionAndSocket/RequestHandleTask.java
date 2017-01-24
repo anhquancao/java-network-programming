@@ -3,13 +3,13 @@ package exceptionAndSocket;
 import java.io.*;
 import java.net.SocketException;
 
-public class RequestHandleThread implements Runnable {
+public class RequestHandleTask implements Runnable {
 
     private InputStream in;
     private OutputStream out;
     private TeacherSetServer server;
 
-    public RequestHandleThread(InputStream in, OutputStream out, TeacherSetServer server) {
+    public RequestHandleTask(InputStream in, OutputStream out, TeacherSetServer server) {
         this.in = in;
         this.out = out;
         this.server = server;
@@ -29,14 +29,14 @@ public class RequestHandleThread implements Runnable {
                     switch (action.getType()) {
                         case TEST_NUMBER_IS_FIRST:
                             int number = (int) action.getData();
-                            message = "Number is first: " + server.testNumberisFirst(number);
+                            message = "Number is first: " + server.testNumberIsPrime(number);
+                            System.out.println(message);
                             break;
                         case ADD:
                             teacher = (Teacher) action.getData();
                             server.addTeacher(teacher);
                             message = "Add: " + teacher;
                             System.out.println(message);
-
                             break;
                         case DELETE:
                             teacher = (Teacher) action.getData();
@@ -51,7 +51,7 @@ public class RequestHandleThread implements Runnable {
                             System.out.println(message);
                             break;
                         case AVERAGE_AGE:
-                            float averageAge = server.averageAge();
+                            double averageAge = server.averageAge();
                             message = "Average age: " + averageAge;
                             System.out.println(message);
                             break;

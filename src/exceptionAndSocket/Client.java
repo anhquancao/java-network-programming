@@ -35,21 +35,37 @@ public class Client {
         objectOutputStream.flush();
     }
 
+    public void testNumberIsFirst() throws IOException {
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(this.out);
+        // calculate age
+        Action actionCalculateAge = new Action(ActionType.TEST_NUMBER_IS_FIRST, 1);
+        objectOutputStream.writeObject(actionCalculateAge);
+        objectOutputStream.flush();
+    }
+
+    public void sendNumberToServer(int number) throws IOException {
+        DataOutputStream out = new DataOutputStream(this.out);
+        out.writeInt(number);
+        out.flush();
+    }
+
     public static void main(String[] args) {
         Socket connection = null;
         try {
             connection = new Socket("localhost", 33333);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(connection.getOutputStream());
 
-            InputThread inputThread = new InputThread(connection.getInputStream());
-            inputThread.start();
+//            InputThread inputThread = new InputThread(connection.getInputStream());
+//            inputThread.start();
 
             Client client = new Client(connection.getOutputStream());
-            client.addTeacher();
-            client.calculateAge("name1");
-            client.calculateAverageAge();
-
-            connection.shutdownOutput();
+//            client.addTeacher();
+//            client.calculateAge("name1");
+//            client.calculateAverageAge();
+//            client.testNumberIsFirst();
+            for (int i = 0; i < 10; i++) {
+                client.sendNumberToServer(i);
+            }
+//            connection.shutdownOutput();
 
 //			Writer output = new OutputStreamWriter(connection.getOutputStream());
 //			output.write("Hello");
