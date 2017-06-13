@@ -1,4 +1,4 @@
-package tp3;
+package tp3.ex1;
 
 /**
  * Created by caoquan on 1/24/17.

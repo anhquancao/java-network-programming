@@ -1,4 +1,4 @@
-package tp3;
+package tp3.ex1;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -41,7 +41,7 @@ public class Server {
         // 3) retrieving the certificate (and the key)
         char[] passPhrase = password.toCharArray();
         try {
-            ks.load(new FileInputStream("/Users/caoquan/Documents/workspace/Thread Share/keys/Fichier_Certif"), passPhrase);
+            ks.load(new FileInputStream("/Users/caoquan/Documents/workspace/Thread Share/keys/key"), passPhrase);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {

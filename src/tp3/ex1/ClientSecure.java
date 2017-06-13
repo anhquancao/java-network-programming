@@ -1,4 +1,4 @@
-package tp3;
+package tp3.ex1;
 
 
 import javax.net.ssl.SSLSocket;
@@ -16,7 +16,8 @@ public class ClientSecure {
 
     public ClientSecure(String host) throws IOException {
         Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
-        System.setProperty("javax.net.ssl.trustStore", "jssecacerts");
+        System.setProperty("javax.net.ssl.trustStore", "/Users/caoquan/Documents/workspace/Thread Share/keys/key");
+        System.setProperty("javax.net.ssl.trustStorePassword", "12345678");
         SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         socket = (SSLSocket) factory.createSocket(host, Constant.PORT);
     }

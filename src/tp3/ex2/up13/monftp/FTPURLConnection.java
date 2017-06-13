@@ -9,7 +9,7 @@ import java.net.URLConnection;
  * Created by caoquan on 1/31/17.
  */
 public class FTPURLConnection extends URLConnection {
-
+    
     /**
      * Constructs a URL connection to the specified URL. A connection to
      * the object referenced by the URL is not created.
@@ -23,6 +23,7 @@ public class FTPURLConnection extends URLConnection {
 
     @Override
     public void connect() throws IOException {
+
     }
 
     @Override
@@ -31,7 +32,7 @@ public class FTPURLConnection extends URLConnection {
     }
 
     public String getHeaderField(String name) {
-        if (name.equals("content -type")) return "monftp";
+        if (name.equals("content-type")) return "monftp";
         return null;
     }
 }
